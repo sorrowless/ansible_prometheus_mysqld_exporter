@@ -1,0 +1,23 @@
+---
+- name: Start docker mysqld exporter container
+  docker_service:
+    state: present
+    project_name: prometheus_mysqld_exporter
+    definition:
+      version: '2'
+      services:
+        mysqld_exporter:
+          image: "{{ mysqld_exporter_docker_image }}"
+          command: "--no-collect.info_schema.innodb_cmp --no-collect.info_schema.innodb_cmpmem --no-collect.slave_status"
+          container_name: "{{ mysqld_exporter_container_name }}"
+          ports:
+            - "127.0.0.1:{{ mysqld_exporter_host_port }}:{{ mysqld_exporter_host_port }}"
+          environment:
+            - DATA_SOURCE_NAME={{ mysqld_exporter_data_source_name }}
+          hostname: "{{ ansible_host }}"
+          restart: always
+          labels: "{{ mysqld_exporter_docker_labels }}"
+      networks:
+        default:
+          external:
+            name: "{{ mysqld_exporter_docker_network_name }}"

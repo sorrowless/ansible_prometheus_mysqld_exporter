@@ -1,0 +1,5 @@
+---
+- name: Restart mysqld exporter
+  service:
+    name: mysqld-exporter.service
+    state: restarted

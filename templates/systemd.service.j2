@@ -1,0 +1,16 @@
+[Unit]
+Description=Mysqld exporter service
+After=network.target
+
+[Service]
+User={{ mysqld_exporter_user }}
+Group={{ mysqld_exporter_user }}
+EnvironmentFile={{ mysqld_exporter_config_dir }}/envvars
+ExecStart=/usr/local/bin/mysqld_exporter --no-collect.info_schema.innodb_cmp --no-collect.info_schema.innodb_cmpmem --no-collect.slave_status
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+Restart=on-failure
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

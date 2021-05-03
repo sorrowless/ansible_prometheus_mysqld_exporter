@@ -1,0 +1,87 @@
+---
+- name: Ensure config dir
+  become: yes
+  become_user: root
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - "{{ mysqld_exporter_config_dir }}"
+    - "{{ mysqld_exporter_config_dir }}/sources"
+
+- name: Get mysqld exporter
+  become: yes
+  become_user: root
+  get_url:
+    url: "https://github.com/prometheus/mysqld_exporter/releases/download/v{{ mysqld_exporter_version }}/mysqld_exporter-{{ mysqld_exporter_version }}.{{ mysqld_exporter_arch }}.tar.gz"
+    dest: "{{ mysqld_exporter_config_dir }}/sources/mysqld_exporter-{{ mysqld_exporter_version }}.{{ mysqld_exporter_arch }}.tar.gz"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Unzip mysqld exporter
+  become: yes
+  become_user: root
+  unarchive:
+    remote_src: yes
+    src: "{{ mysqld_exporter_config_dir }}/sources/mysqld_exporter-{{ mysqld_exporter_version }}.{{ mysqld_exporter_arch }}.tar.gz"
+    dest: "{{ mysqld_exporter_config_dir }}/sources/"
+    creates: "{{ mysqld_exporter_config_dir }}/sources/mysqld_exporter-{{ mysqld_exporter_version }}.{{ mysqld_exporter_arch }}/mysqld_exporter"
+
+- name: Copy exporter to PATH
+  become: yes
+  become_user: root
+  copy:
+    remote_src: yes
+    src: "{{ mysqld_exporter_config_dir }}/sources/mysqld_exporter-{{ mysqld_exporter_version }}.{{ mysqld_exporter_arch }}/mysqld_exporter"
+    dest: /usr/local/bin/mysqld_exporter
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - Restart mysqld exporter
+
+- name: Create mysqld exporter user
+  user:
+    name: "{{ mysqld_exporter_user }}"
+    comment: "mysqld exporter user"
+    shell: /usr/sbin/nologin
+
+- name: Ensure mysqld exporter env vars file
+  become: yes
+  become_user: root
+  template:
+    src: envvars.j2
+    dest: "{{ mysqld_exporter_config_dir }}/envvars"
+    owner: root
+    group: "{{ mysqld_exporter_user }}"
+    mode: 0640
+  notify:
+    - Restart mysqld exporter
+
+- name: Ensure mysqld exporter systemd unit
+  become: yes
+  become_user: root
+  template:
+    src: systemd.service.j2
+    dest: "/etc/systemd/system/mysqld-exporter.service"
+    owner: root
+    group: root
+    mode: 0644
+  register: systemd_unitfile
+  notify:
+    - Restart mysqld exporter
+
+- name: Enable systemd service
+  become: yes
+  become_user: root
+  systemd:
+    name: "mysqld-exporter.service"
+    enabled: yes
+    daemon_reload: yes
+    state: started
+  when:
+    - systemd_unitfile.changed
