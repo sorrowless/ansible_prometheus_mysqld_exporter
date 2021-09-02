@@ -9,6 +9,7 @@ mysqld_exporter_docker_labels:
   - exporter
   - mysqld_exporter
 mysqld_exporter_host_port: 9104
+mysqld_exporter_host_address: 127.0.0.1
 mysqld_exporter_version: '0.12.1'
 mysqld_exporter_arch: linux-amd64
 mysqld_exporter_metrics_path: metrics

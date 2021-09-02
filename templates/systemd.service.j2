@@ -6,7 +6,7 @@ After=network.target
 User={{ mysqld_exporter_user }}
 Group={{ mysqld_exporter_user }}
 EnvironmentFile={{ mysqld_exporter_config_dir }}/envvars
-ExecStart=/usr/local/bin/mysqld_exporter --no-collect.info_schema.innodb_cmp --no-collect.info_schema.innodb_cmpmem --no-collect.slave_status
+ExecStart=/usr/local/bin/mysqld_exporter --no-collect.info_schema.innodb_cmp --no-collect.info_schema.innodb_cmpmem --no-collect.slave_status --web.listen-address="{{ mysqld_exporter_host_address }}:{{ mysqld_exporter_host_port }}"
 ExecStop=/bin/kill -s TERM $MAINPID
 PrivateTmp=true
 Restart=on-failure
