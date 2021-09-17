@@ -1,6 +1,6 @@
 ---
 - name: Start docker mysqld exporter container
-  docker_service:
+  community.docker.docker_compose:
     state: present
     project_name: prometheus_mysqld_exporter
     definition:
