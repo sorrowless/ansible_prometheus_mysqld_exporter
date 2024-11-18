@@ -1,10 +1,9 @@
 ---
 - name: Start docker mysqld exporter container
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     state: present
     project_name: prometheus_mysqld_exporter
     definition:
-      version: '2'
       services:
         mysqld_exporter:
           image: "{{ mysqld_exporter_docker_image }}"
@@ -19,5 +18,5 @@
           labels: "{{ mysqld_exporter_docker_labels }}"
       networks:
         default:
-          external:
-            name: "{{ mysqld_exporter_docker_network_name }}"
+          external: true
+          name: "{{ mysqld_exporter_docker_network_name }}"
