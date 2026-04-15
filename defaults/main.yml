@@ -15,3 +15,13 @@ mysqld_exporter_arch: linux-amd64
 mysqld_exporter_metrics_path: metrics
 mysqld_exporter_user: mysqld_exporter
 mysqld_exporter_data_source_name: "mysql:mysql@(127.0.0.1:3306)/db_name"
+
+# Specifying an exporter config file is only possible with a Docker installation (mysqld_exporter_run_in_docker: true).
+# mysqld_exporter_config: |
+#   [client]
+#   user=mysql
+#   password=passwd
+#   host=any.mysql.com
+#   port=3306
+#   ssl-ca={{ mysqld_exporter_config_dir }}/root.crt
+#   ssl-mode=VERIFY_IDENTITY
